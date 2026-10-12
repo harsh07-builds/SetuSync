@@ -1,0 +1,64 @@
+# SetuSync, single-host deployment:  docker compose up -d --build
+# Public entry point: http://<host>:${WEB_PORT:-8088}  (app + /v1 proxy)
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: setusync-fixed-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: setusync
+      POSTGRES_USER: setusync
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-setusync}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - setusync_fixed_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U setusync -d setusync"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  relay:
+    build: ./apps/relay
+    container_name: setusync-fixed-relay
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/setusync
+      DB_USERNAME: setusync
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-setusync}
+      # Required secrets: compose refuses to start without them.
+      SERPAPI_KEY: ${SERPAPI_KEY:?Set SERPAPI_KEY in .env}
+      SETUSYNC_SIGNING_PRIVATE_KEY_PKCS8_B64: ${SETUSYNC_SIGNING_PRIVATE_KEY_PKCS8_B64:?Signing private key is required}
+      SETUSYNC_SIGNING_PUBLIC_KEY_SPKI_B64: ${SETUSYNC_SIGNING_PUBLIC_KEY_SPKI_B64:?Signing public key is required}
+      SETUSYNC_SIGNING_KID: ${SETUSYNC_SIGNING_KID:-relay-1}
+      # Credit protection for your SerpApi plan.
+      SETUSYNC_GOVERNOR_MONTHLY_CREDIT_BUDGET: ${SETUSYNC_GOVERNOR_MONTHLY_CREDIT_BUDGET:-240}
+      SETUSYNC_GOVERNOR_PER_INSTALL_CREDIT_QUOTA: ${SETUSYNC_GOVERNOR_PER_INSTALL_CREDIT_QUOTA:-40}
+      SETUSYNC_GOVERNOR_GLOBAL_KILL_SWITCH: ${SETUSYNC_GOVERNOR_GLOBAL_KILL_SWITCH:-false}
+      # Only needed if browsers call the relay directly (not via the web
+      # container's /v1 proxy), e.g. https://my-app.vercel.app
+      SETUSYNC_CORS_ALLOWED_ORIGINS: ${SETUSYNC_CORS_ALLOWED_ORIGINS:-http://localhost:8088}
+    volumes:
+      - setusync_fixed_capsule_data:/app/data
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/demo/Dockerfile
+    container_name: setusync-fixed-web
+    restart: unless-stopped
+    depends_on:
+      - relay
+    environment:
+      RELAY_UPSTREAM: http://relay:8080
+      RELAY_URL: ${RELAY_URL:-}
+    ports:
+      - "${WEB_PORT:-8089}:80"
+
+volumes:
+  setusync_fixed_postgres_data:
+  setusync_fixed_capsule_data:

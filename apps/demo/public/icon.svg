@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#172033"/>
+  <!-- "Setu" means bridge: an arch spanning a gap -->
+  <path d="M64 330 Q256 90 448 330" fill="none" stroke="#6f95ff" stroke-width="30" stroke-linecap="round"/>
+  <path d="M64 330 H448" stroke="#ffffff" stroke-width="30" stroke-linecap="round"/>
+  <g stroke="#6f95ff" stroke-width="16" stroke-linecap="round">
+    <path d="M150 330 V256"/><path d="M256 330 V222"/><path d="M362 330 V256"/>
+  </g>
+  <circle cx="64" cy="330" r="22" fill="#ffffff"/><circle cx="448" cy="330" r="22" fill="#ffffff"/>
+</svg>

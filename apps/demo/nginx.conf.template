@@ -1,0 +1,55 @@
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # The Relay, on the same origin as the app: no CORS, one public URL.
+    location /v1/ {
+        proxy_pass ${RELAY_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+
+    # Runtime config must never be cached.
+    location = /config.js {
+        add_header Cache-Control "no-store";
+    }
+
+    # The service worker must always be re-checked for updates.
+    location = /sw.js {
+        add_header Cache-Control "no-store";
+    }
+
+    # Background Sync worker code is loaded by the service worker; keep it fresh too.
+    location = /bg-sync.js {
+        add_header Cache-Control "no-store";
+    }
+
+    # ONNX runtime for smart search: correct MIME types, and a missing file is a
+    # real 404 (not the app's index.html, which would break dynamic imports).
+    location /ort/ {
+        try_files $uri =404;
+        types {
+            application/javascript mjs;
+            application/wasm wasm;
+        }
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # Hashed build assets can be cached forever.
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

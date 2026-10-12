@@ -1,0 +1,51 @@
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+coverage/
+**/coverage/
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Local keyset backups
+keyset-backup-*.csv
+
+# Local signing-key backups
+keyset-backup-*.csv
+
+# Local credentials and signing-key backups
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+keyset-backup-*.csv
+
+# Local backups and temporary files
+*.bak
+*.backup
+*.old
+*.dump
+"*.sql.bak"
+
+# Generated TypeScript build cache
+**/tsconfig.tsbuildinfo
+
+
+# Keep old relay backup out of Git
+apps/relay-skeleton-backup/
+
+
+# Keep old relay backup out of Git
+apps/relay-skeleton-backup/
+
+# Copied from onnxruntime-web at build time (see apps/demo/scripts/copy-ort.mjs)
+apps/demo/public/ort/

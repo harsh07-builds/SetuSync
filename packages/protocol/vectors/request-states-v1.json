@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "sdk_states": [
+    "FRESH",
+    "STALE_ALLOWED",
+    "REVALIDATING",
+    "PENDING",
+    "UNAVAILABLE"
+  ],
+  "ticket_states": [
+    "READY",
+    "PROCESSING",
+    "FAILED",
+    "EXPIRED"
+  ]
+}

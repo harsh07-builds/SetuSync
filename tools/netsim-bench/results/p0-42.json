@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-05T15:51:45.460Z",
+  "profile": {
+    "id": "P0",
+    "name": "clean-network",
+    "latencyMs": 0,
+    "failureRate": 0,
+    "onlineProbability": 1
+  },
+  "seed": 42,
+  "iterations": 100,
+  "systems": [
+    {
+      "system": "direct",
+      "iterations": 100,
+      "success_rate": 1,
+      "deferred_rate": 0,
+      "failure_rate": 0,
+      "provider_calls": 100,
+      "credits_used": 100,
+      "latency_ms": {
+        "count": 100,
+        "min_ms": 0.1698286458849907,
+        "p50_ms": 10.08910221979022,
+        "p95_ms": 19.04854603554122,
+        "p99_ms": 19.75814800574444,
+        "max_ms": 19.92988686542958,
+        "mean_ms": 10.01628148080781
+      }
+    },
+    {
+      "system": "provider-cache",
+      "iterations": 100,
+      "success_rate": 1,
+      "deferred_rate": 0,
+      "failure_rate": 0,
+      "provider_calls": 62,
+      "credits_used": 62,
+      "latency_ms": {
+        "count": 100,
+        "min_ms": 0.4491047142073512,
+        "p50_ms": 4.318485432304442,
+        "p95_ms": 17.84943190682679,
+        "p99_ms": 19.63480975944549,
+        "max_ms": 19.92988686542958,
+        "mean_ms": 7.1794833911303435
+      }
+    },
+    {
+      "system": "setusync",
+      "iterations": 100,
+      "success_rate": 1,
+      "deferred_rate": 0,
+      "failure_rate": 0,
+      "provider_calls": 0,
+      "credits_used": 0,
+      "latency_ms": {
+        "count": 100,
+        "min_ms": 1,
+        "p50_ms": 1,
+        "p95_ms": 1,
+        "p99_ms": 1,
+        "max_ms": 1,
+        "mean_ms": 1
+      }
+    }
+  ],
+  "note": "Simulation harness artifact. Values are measured from this run and are not production claims."
+}

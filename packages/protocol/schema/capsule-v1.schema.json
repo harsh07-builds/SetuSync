@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setusync.dev/schema/capsule-v1.schema.json",
+  "title": "SetuSync Capsule v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "v",
+    "kid",
+    "alg",
+    "sig",
+    "body"
+  ],
+  "properties": {
+    "v": {
+      "type": "integer",
+      "const": 1
+    },
+    "kid": {
+      "type": "string",
+      "minLength": 1
+    },
+    "alg": {
+      "type": "string",
+      "const": "Ed25519"
+    },
+    "sig": {
+      "type": "string",
+      "minLength": 1
+    },
+    "body": {
+      "$ref": "#/$defs/capsuleBody"
+    }
+  },
+  "$defs": {
+    "sha256Hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "isoTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "jsonObject": {
+      "type": "object"
+    },
+    "searchResult": {
+      "type": "object"
+    },
+    "relatedQuestion": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "question"
+      ],
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "answer": {},
+        "link": {
+          "type": "string"
+        }
+      }
+    },
+    "capsuleSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "searchId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "credits": {
+          "type": "number"
+        },
+        "cache": {
+          "type": "boolean"
+        }
+      }
+    },
+    "capsuleMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "risk": {
+          "type": "string",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "UNKNOWN"
+          ]
+        },
+        "review": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "REVIEWED",
+            "FLAGGED"
+          ]
+        },
+        "lang": {
+          "type": "string"
+        }
+      }
+    },
+    "capsuleBody": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "key",
+        "chash",
+        "engine",
+        "params",
+        "fetched_at",
+        "ttl_s",
+        "source",
+        "organic_results"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "key": {
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "chash": {
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "engine": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "fetched_at": {
+          "$ref": "#/$defs/isoTimestamp"
+        },
+        "ttl_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_lease_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source": {
+          "$ref": "#/$defs/capsuleSource"
+        },
+        "organic_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/searchResult"
+          }
+        },
+        "related_questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relatedQuestion"
+          }
+        },
+        "meta": {
+          "$ref": "#/$defs/capsuleMeta"
+        }
+      }
+    }
+  }
+}

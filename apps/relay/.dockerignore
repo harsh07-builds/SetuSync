@@ -1,0 +1,6 @@
+target/
+data/
+*.log
+*.class
+classpath.txt
+HELP.md

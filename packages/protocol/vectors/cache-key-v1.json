@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "input": {
+    "engine": "google",
+    "params": {
+      "q": "pm kisan eligibility",
+      "hl": "hi",
+      "gl": "in"
+    }
+  },
+  "canonical": "{\"engine\":\"google\",\"params\":{\"gl\":\"in\",\"hl\":\"hi\",\"q\":\"pm kisan eligibility\"}}",
+  "key": "sha256:f0479dd7bf4ac1cb19ccb462185a861aa748a3a650adc4d189b73f69371e704f"
+}

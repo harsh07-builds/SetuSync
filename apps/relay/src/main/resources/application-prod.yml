@@ -1,0 +1,96 @@
+spring:
+  datasource:
+    url: ${SETUSYNC_DATABASE_URL}
+    username: ${SETUSYNC_DATABASE_USERNAME}
+    password: ${SETUSYNC_DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: ${SETUSYNC_DATABASE_MAX_POOL_SIZE:20}
+      minimum-idle: ${SETUSYNC_DATABASE_MIN_IDLE:5}
+      connection-timeout: ${SETUSYNC_DATABASE_CONNECTION_TIMEOUT_MS:5000}
+
+  sql:
+    init:
+      # schema.sql is idempotent; set to "never" only if you migrate
+      # the database out of band.
+      mode: ${SETUSYNC_SQL_INIT_MODE:always}
+      schema-locations: classpath:schema.sql
+
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+  servlet:
+    multipart:
+      max-file-size: ${SETUSYNC_MAX_FILE_SIZE:1MB}
+      max-request-size: ${SETUSYNC_MAX_REQUEST_SIZE:2MB}
+
+management:
+  server:
+    address: 0.0.0.0
+    port: ${SETUSYNC_MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+server:
+  port: ${SETUSYNC_SERVER_PORT:8080}
+  address: 0.0.0.0
+  shutdown: graceful
+  max-http-request-header-size: ${SETUSYNC_MAX_HTTP_REQUEST_HEADER_SIZE:16KB}
+
+spring.lifecycle:
+  timeout-per-shutdown-phase: ${SETUSYNC_SHUTDOWN_TIMEOUT:30s}
+
+setusync:
+  cors:
+    allowed-origins: ${SETUSYNC_CORS_ALLOWED_ORIGINS:}
+
+  signing:
+    kid: ${SETUSYNC_SIGNING_KID:}
+    public-key-spki-b64: ${SETUSYNC_SIGNING_PUBLIC_KEY_SPKI_B64:}
+
+  object-store:
+    enabled: ${SETUSYNC_OBJECT_STORE_ENABLED:true}
+    provider: ${SETUSYNC_OBJECT_STORE_PROVIDER:s3}
+    endpoint: ${SETUSYNC_OBJECT_STORE_ENDPOINT:}
+    bucket: ${SETUSYNC_OBJECT_STORE_BUCKET}
+    region: ${AWS_REGION:us-east-1}
+
+  acquisition:
+    queue:
+      mode: ${SETUSYNC_ACQUISITION_QUEUE_MODE:sqs}
+      url: ${SETUSYNC_ACQUISITION_QUEUE_URL:}
+      region: ${AWS_REGION:us-east-1}
+      visibility-timeout-seconds: ${SETUSYNC_ACQUISITION_QUEUE_VISIBILITY_TIMEOUT_SECONDS:120}
+      poll-interval-ms: ${SETUSYNC_ACQUISITION_QUEUE_POLL_INTERVAL_MS:1000}
+
+  scheduler:
+    mode: ${SETUSYNC_SCHEDULER_MODE:eventbridge}
+    queue-url: ${SETUSYNC_SCHEDULER_QUEUE_URL:}
+    poll-interval-ms: ${SETUSYNC_SCHEDULER_POLL_INTERVAL_MS:1000}
+    max-messages: ${SETUSYNC_SCHEDULER_MAX_MESSAGES:10}
+    wait-seconds: ${SETUSYNC_SCHEDULER_WAIT_SECONDS:10}
+
+  cache:
+    mode: ${SETUSYNC_CACHE_MODE:caffeine}
+    redis:
+      endpoint: ${SETUSYNC_REDIS_ENDPOINT:}
+      region: ${AWS_REGION:us-east-1}
+
+  governor:
+    monthly-credit-budget: ${SETUSYNC_GOVERNOR_MONTHLY_CREDIT_BUDGET:240}
+    per-install-credit-quota: ${SETUSYNC_GOVERNOR_PER_INSTALL_CREDIT_QUOTA:40}
+    global-kill-switch: ${SETUSYNC_GOVERNOR_GLOBAL_KILL_SWITCH:false}
+    blocked-engines: ${SETUSYNC_GOVERNOR_BLOCKED_ENGINES:}
+
+  provider:
+    serpapi:
+      api-key: ${SERPAPI_KEY}
+      base-url: ${SERPAPI_BASE_URL:https://serpapi.com}

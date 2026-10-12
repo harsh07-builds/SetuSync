@@ -1,0 +1,17 @@
+{
+  "name": "@setusync/benchmark",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.20.5"
+  },
+  "dependencies": {
+    "@setusync/edge-sdk": "^1.0.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "setusync",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "prepare": "npm run build:protocol",
+    "build:protocol": "tsc --build packages/protocol",
+    "typecheck": "npm run build:protocol && npm run typecheck --workspaces --if-present",
+    "test": "npm run build:protocol && npm run test --workspaces --if-present",
+    "dev:demo": "npm run dev -w @setusync/demo",
+    "build:demo": "npm run build:protocol && npm run build -w @setusync/demo",
+    "generate-signing-key": "node scripts/generate-signing-key.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "apps/demo",
+    "packages/protocol",
+    "packages/edge-sdk",
+    "apps/benchmark"
+  ],
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

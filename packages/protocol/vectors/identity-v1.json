@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "request": {
+    "engine": "google",
+    "query": "government hospital",
+    "params": {
+      "gl": "in",
+      "hl": "en"
+    }
+  },
+  "request_canonical": "{\"engine\":\"google\",\"params\":{\"gl\":\"in\",\"hl\":\"en\"},\"query\":\"government hospital\"}",
+  "request_key": "d811fd3c66cf497b5998eb622821c4e4d37f944d228f708b36379e7f1a776999",
+  "content": {
+    "organic_results": [
+      {
+        "position": 1,
+        "title": "Hospital A",
+        "link": "https://example.com/a"
+      }
+    ],
+    "related_questions": []
+  },
+  "content_canonical": "{\"organic_results\":[{\"link\":\"https://example.com/a\",\"position\":1,\"title\":\"Hospital A\"}],\"related_questions\":[]}",
+  "content_hash": "a6cf45173a7296a648cd3ad5cdd1c9cf3d4c3c19ac4b82b4f12c393cd3db15e7",
+  "body_without_id": {
+    "key": "d811fd3c66cf497b5998eb622821c4e4d37f944d228f708b36379e7f1a776999",
+    "chash": "a6cf45173a7296a648cd3ad5cdd1c9cf3d4c3c19ac4b82b4f12c393cd3db15e7",
+    "engine": "google",
+    "params": {
+      "gl": "in",
+      "hl": "en"
+    },
+    "fetched_at": "2026-10-04T00:00:00Z",
+    "ttl_s": 3600,
+    "source": {
+      "provider": "serpapi"
+    },
+    "organic_results": [
+      {
+        "position": 1,
+        "title": "Hospital A",
+        "link": "https://example.com/a"
+      }
+    ],
+    "related_questions": []
+  },
+  "body_canonical": "{\"chash\":\"a6cf45173a7296a648cd3ad5cdd1c9cf3d4c3c19ac4b82b4f12c393cd3db15e7\",\"engine\":\"google\",\"fetched_at\":\"2026-10-04T00:00:00Z\",\"key\":\"d811fd3c66cf497b5998eb622821c4e4d37f944d228f708b36379e7f1a776999\",\"organic_results\":[{\"link\":\"https://example.com/a\",\"position\":1,\"title\":\"Hospital A\"}],\"params\":{\"gl\":\"in\",\"hl\":\"en\"},\"related_questions\":[],\"source\":{\"provider\":\"serpapi\"},\"ttl_s\":3600}",
+  "capsule_id": "c20eb5bd033ecd8f5ce26494e9d33b3930273c07be67af99a0ca4a3b8684a30f"
+}

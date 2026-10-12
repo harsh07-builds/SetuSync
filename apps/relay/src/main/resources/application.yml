@@ -1,0 +1,77 @@
+# Default profile = single-node deployment (local queue, local object store,
+# in-process schedulers). Everything is overridable through environment
+# variables so the same jar runs on a laptop, a VM or a PaaS container.
+# The AWS profile (SQS / EventBridge / S3) lives in application-prod.yml.
+spring:
+  application:
+    name: setusync-relay
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/setusync}
+    username: ${DB_USERNAME:setusync}
+    password: ${DB_PASSWORD:setusync}
+    hikari:
+      connection-timeout: 5000
+
+  sql:
+    init:
+      # schema.sql is idempotent and also performs forward migrations.
+      mode: ${SETUSYNC_SQL_INIT_MODE:always}
+      schema-locations: classpath:schema.sql
+
+  task:
+    scheduling:
+      # The outbox dispatcher, archive poller, capsule compiler and
+      # recovery worker all run on this pool. A single thread lets one
+      # slow provider call stall every other worker.
+      pool:
+        size: 4
+
+server:
+  port: ${SETUSYNC_SERVER_PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+setusync:
+  cors:
+    # Comma separated; wildcards allowed, e.g. https://*.vercel.app
+    allowed-origins: ${SETUSYNC_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173,http://localhost:8088}
+
+  signing:
+    kid: ${SETUSYNC_SIGNING_KID:}
+    public-key-spki-b64: ${SETUSYNC_SIGNING_PUBLIC_KEY_SPKI_B64:}
+
+  acquisition:
+    archive-poll-interval-ms: ${SETUSYNC_ARCHIVE_POLL_INTERVAL_MS:2000}
+    archive-poll-max-attempts: ${SETUSYNC_ARCHIVE_POLL_MAX_ATTEMPTS:30}
+    capsule-compile-interval-ms: ${SETUSYNC_CAPSULE_COMPILE_INTERVAL_MS:2000}
+    submission-recovery-interval-ms: ${SETUSYNC_SUBMISSION_RECOVERY_INTERVAL_MS:15000}
+    submission-recovery-batch-size: ${SETUSYNC_SUBMISSION_RECOVERY_BATCH_SIZE:25}
+    submission-recovery-stale-after-seconds: ${SETUSYNC_SUBMISSION_RECOVERY_STALE_AFTER_SECONDS:60}
+
+  object-store:
+    enabled: true
+    provider: ${SETUSYNC_OBJECT_STORE_PROVIDER:local}
+    local-directory: ${SETUSYNC_OBJECT_STORE_LOCAL_DIRECTORY:./data/capsules}
+    endpoint: ${SETUSYNC_OBJECT_STORE_ENDPOINT:http://localhost:9000}
+    access-key: ${SETUSYNC_OBJECT_STORE_ACCESS_KEY:}
+    secret-key: ${SETUSYNC_OBJECT_STORE_SECRET_KEY:}
+    bucket: ${SETUSYNC_OBJECT_STORE_BUCKET:setusync-capsules}
+
+  governor:
+    # A value of 0 means "not configured" and makes the Relay refuse every
+    # uncached search. Defaults are sized for SerpApi's free plan
+    # (250 searches / month); raise them for a paid plan.
+    monthly-credit-budget: ${SETUSYNC_GOVERNOR_MONTHLY_CREDIT_BUDGET:240}
+    per-install-credit-quota: ${SETUSYNC_GOVERNOR_PER_INSTALL_CREDIT_QUOTA:40}
+    global-kill-switch: ${SETUSYNC_GOVERNOR_GLOBAL_KILL_SWITCH:false}
+    blocked-engines: ${SETUSYNC_GOVERNOR_BLOCKED_ENGINES:}
