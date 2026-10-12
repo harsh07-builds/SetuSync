@@ -1,279 +1,312 @@
 # SetuSync
 
-**Make SerpApi-powered apps keep working when the network doesn't.**
+**Make SerpApi-powered knowledge portable, reusable, and available beyond the live search session.**
 
-SetuSync is a connectivity-resilience layer for applications built on
-[SerpApi](https://serpapi.com). An edge SDK keeps results on the device, a
-Relay talks to SerpApi on the user's behalf, and every result is
-**cryptographically signed**, so people can pass search results to each other
-over WhatsApp, Bluetooth, USB or animated QR codes with no internet, and nobody
-can tamper with them on the way.
+SetuSync is an offline-first knowledge layer built around SerpApi. It takes the value created by a live search and helps it travel further: a result can become a signed knowledge capsule, be stored and searched on a device, reused without repeating the same acquisition, and shared with another person through a file, QR code, or nearby peer-to-peer transfer.
 
-> "One person with a connection updates a whole village, and nobody can tamper
-> with the data."
+The idea is bigger than adding a search box to an app. **SetuSync explores a new way for SerpApi-powered information to reach people and places where a reliable, continuous internet connection cannot be assumed.** SerpApi remains the online discovery engine; SetuSync adds a portable, verifiable reuse-and-sharing layer around the information it helps retrieve.
 
-*Built for the **SerpApi India Hackathon 2026**, track: **Knowledge & Public Interest**.*
-
-| | |
-|---|---|
-| **Demo video** | `<!-- TODO: paste your public video link (under 3 minutes) -->` |
-| **Live demo** | `<!-- TODO: paste your deployed URL, or delete this row -->` |
-| **Team** | `<!-- TODO: names / GitHub handles -->` |
+**Hackathon track:** Knowledge & Public Interest
 
 ---
 
-## 1. The problem
+## The idea: extend what search can do
 
-Anything built on live search (health information, government schemes, jobs,
-local services) fails exactly where it is needed most: villages, field
-surveys, trains, tunnels, and congested city networks. A normal SerpApi app
-shows a spinner, then an error. It also **spends a paid search credit every
-time** someone asks a question that a neighbour asked ten minutes ago.
+A live search is valuable, but its usefulness can end when the connection drops, the same question is asked again, or someone nearby needs the same information on a different device.
 
-## 2. What SetuSync does
+SetuSync changes the lifecycle of a search result:
 
-| Feature | What the user gets |
-|---|---|
-| **Offline search + durable outbox** | Search saved results with no signal. Searches made offline are kept and sent automatically when the connection returns |
-| **Capsule Packs (`.setupack`)** | Bundle verified results into one compressed file. Send it by WhatsApp, Bluetooth, AirDrop or USB; the receiver verifies the signature before storing anything |
-| **Animated QR transfer** | Move a few results phone-to-phone with only a camera. No pairing, no network |
-| **Provenance receipts** | Every result shows where it came from and which key signed it |
-| **Query normalisation** | "tokyo best cafes?" and "Best cafe in Tokyo" are recognised as one search, so one SerpApi credit serves many people |
-| **Volatility-aware freshness** | Learns how fast each search changes, so it can say "rarely changes" instead of using a fixed expiry |
-| **Hinglish-friendly offline search** | Typo-tolerant search over saved results, including common romanised Hindi terms ("sarkari yojana", "aspataal") |
-| **Impact dashboard** | Credits avoided, questions answered offline, data that never touched the relay, all measured on the device |
-| **Network lab** | Simulate 3G / 2G / 30% loss / a tunnel and compare a typical app against SetuSync side by side |
-| **Nearby phone-to-phone (WebRTC)** | Two phones on the same Wi-Fi or hotspot connect by scanning two QR codes (no signalling server) and swap only the searches the other is missing. Everything is signature-checked |
-| **Delta capsules** | When a search changed, send only what changed. The receiver rebuilds the exact signed capsule from the version it already holds, and the signature check proves it is correct. The app measures the bytes saved |
-| **Background Sync** | Searches queued offline are completed by the service worker when the connection returns, even if the tab was closed. Results are verified when the app next opens |
-| **Smart search (on-device AI)** | A small sentence model (transformers.js, about 25 MB) runs in the browser, so "cheap places to eat" finds "budget restaurants" with no network. Hinglish is understood too |
-| **Opportunistic sync** | When the Network Information API reports a better connection, queued searches go out first |
-| **Installable PWA** | The app itself opens with no connection once it has been visited |
-| **Credit governor** | Monthly and per-device limits so a demo can never overspend the SerpApi plan |
-| **Community hub** | Run the Relay on a spare laptop's hotspot and serve everyone nearby ([guide](docs/COMMUNITY-HUB.md)) |
+1. **Discover with SerpApi.** The Relay requests live search results through SerpApi when acquisition is allowed and needed.
+2. **Package the result.** SetuSync compiles the result into a structured knowledge capsule and signs it.
+3. **Keep it close.** The device stores capsules locally so previously acquired information can be searched without a live request.
+4. **Share it onward.** A user can export a capsule pack, display QR frames, or exchange data with a compatible nearby device.
+5. **Reuse responsibly.** Freshness information and signature verification help users distinguish a stored, verifiable capsule from a new live search.
 
-### What makes it different
+That gives SerpApi-powered discovery a longer useful life than a single online request. Instead of treating every result as something to fetch and discard, SetuSync treats it as knowledge that can be retained, verified, carried, and reused.
 
-- **WhatsApp becomes the sync network.** One person with a connection fetches results; everyone else receives them as a file or a stream of QR codes. No server, no pairing, no data plan needed on the receiving phone.
-- **Tamper-proof by design.** Results are signed by the Relay, so they can travel over any untrusted channel. Change one byte of a `.setupack` and the import is rejected.
-- **A visible chain of trust.** Each result shows its custody trail (signed by the Relay, shared by a friend's phone, imported on this device) and the signing key's fingerprint.
-- **No server, no internet, no pairing codes.** Two phones connect over WebRTC by scanning two QR codes, then exchange only what the other is missing, and only the changes when it already has an earlier version.
-- **Finishes the job after you leave.** Searches queued offline are completed by Background Sync even with the tab closed.
-- **Understands meaning offline.** On-device semantic search finds related results without any network once the model is cached.
-- **Fewer SerpApi credits.** Near-duplicate questions collapse into one search, and results shared peer-to-peer never touch the Relay. The Impact dashboard shows the real numbers measured on the device.
-- **Proof, not claims.** The Network lab runs a typical app and SetuSync side by side on simulated 2G, 3G and 30% packet loss, so the difference is visible on stage.
-- **Honest wording.** This is *opportunistic peer sharing between people*, not a mesh network.
+## Why this matters for SerpApi
 
-## 3. How SerpApi is used (and why it matters)
+**SerpApi is the engine at the centre of SetuSync—not a badge added to an unrelated product.** SetuSync's acquisition path depends on SerpApi to retrieve search results. The rest of the system is designed around what can happen to those results after retrieval.
 
-SerpApi is not an add-on here. Every result the app shows is a SerpApi result,
-and SetuSync's whole purpose is to make SerpApi usable in places it otherwise
-would not be.
+The project explores a complementary product direction for search infrastructure:
 
-- **Live search:** the Relay uses the official SerpApi Java library to submit
-  searches with `async=true` (the engine and parameters come from the request;
-  the demo app uses the Google Search API).
-- **Search Archive API:** the Relay polls and retrieves finished searches from
-  the SerpApi Search Archive, so a slow or dropped connection never loses a result.
-- **Credit efficiency:** results are cached under a normalised key, so
-  repeated and near-duplicate questions cost zero credits. A governor enforces
-  a monthly budget and a per-device quota.
-- **Signed capsules:** each SerpApi response is compiled into a *capsule*
-  (results, freshness and request identity) and signed with Ed25519. This is
-  what lets results travel safely over untrusted channels.
+- **Reach beyond always-online users.** Previously acquired results can remain useful in low-connectivity environments.
+- **Make results reusable across people and devices.** Signed capsule packs, QR transfer, and nearby exchange create ways for SerpApi-powered information to move beyond the original requester.
+- **Reduce avoidable repeat acquisition.** Local storage and the Relay's cache can reuse results when the implementation considers requests equivalent and policy permits reuse.
+- **Support community knowledge workflows.** A person or organization can prepare useful search material while online and make it available locally or share it with others.
+- **Make trust part of the transfer.** Signatures let a recipient verify that capsule content has not changed since it was signed by a trusted key.
+- **Create a platform layer for future experiences.** A portable capsule format and edge SDK can serve as building blocks for applications that need searchable information under intermittent connectivity.
 
-## 4. Architecture
+This is an exploration of how SerpApi-powered search can become more portable and resilient. It does **not** claim that SerpApi itself is offline or that SetuSync can retrieve new live search results without connectivity. SerpApi provides the live acquisition; SetuSync helps preserve and distribute previously acquired results.
+
+## Who could benefit
+
+The same pattern can support different settings where information needs to remain useful between connections:
+
+- **Community and public-interest organizations** preparing locally relevant information for outreach.
+- **Field teams and mobile workers** who may need to consult previously retrieved material in areas with unreliable connectivity.
+- **Learning and research groups** sharing a prepared collection of search results with peers.
+- **Travel, events, and local support workflows** where users may want access to previously acquired information after going offline.
+- **Developers building resilient search experiences** who want local storage, signed content, and transfer primitives around online discovery.
+
+These are potential use cases enabled by the design, not claims of existing customer adoption or a measured commercial outcome.
+
+## How SerpApi powers the system
+
+SerpApi is the upstream search acquisition service used by the SetuSync Relay.
+
+1. The web application sends a search request to the SetuSync Relay.
+2. The Relay applies request handling, cache, and credit-governor rules.
+3. When a cache miss is eligible for live acquisition, the Relay submits the request to SerpApi.
+4. The Relay retrieves asynchronous results through the Search Archive flow where applicable.
+5. The result is compiled into a knowledge capsule and signed with an Ed25519 key.
+6. The client verifies the capsule and stores it locally for later search, reuse, synchronization, and sharing.
+
+The integration is implemented in `apps/relay`. The configured engine and request parameters depend on the request and application configuration; the demo is configured for Google Search. Check the source and configuration before deploying with a different engine.
+
+### Why SerpApi is essential here
+
+Without SerpApi, SetuSync would not have its configured live search acquisition path. The capsule, cache, offline store, and transfer mechanisms are designed to extend the usefulness of the search results obtained through that path. SerpApi supplies the discovery capability; SetuSync experiments with making the resulting knowledge more durable, portable, and useful under connectivity constraints.
+
+## Architecture
 
 ```mermaid
 flowchart LR
-  subgraph Device["Browser / PWA (edge SDK)"]
-    S[Local search<br/>IndexedDB capsules]
-    O[Durable outbox]
-    K[Keyring<br/>pinned relay keys]
-    P[Pack + QR<br/>import / export]
+  subgraph Device["Browser / PWA"]
+    UI["React application"]
+    SDK["Edge SDK"]
+    DB["Local capsule store and search"]
+    SHARE["Pack, QR and peer transfer"]
+    UI --> SDK --> DB
+    SDK --> SHARE
   end
-  subgraph Relay["Relay (Spring Boot + PostgreSQL)"]
-    G[Credit governor]
-    C[Normalised cache]
-    SG[Capsule signer<br/>Ed25519]
-  end
-  SA[(SerpApi<br/>Search + Archive)]
-  Friend[Friend's phone]
 
-  O -- "POST /v1/search" --> G --> C --> SA
-  SA --> SG -- "signed capsule" --> S
-  K -- "GET /v1/keys" --> Relay
-  P <-- "WhatsApp / Bluetooth / USB / QR" --> Friend
+  subgraph Relay["SetuSync Relay"]
+    API["Search API"]
+    GOV["Credit governor and cache"]
+    SIGN["Capsule compiler and signer"]
+    API --> GOV --> SIGN
+  end
+
+  SERP["SerpApi Search API / Search Archive"]
+  UI --> API
+  GOV <--> SERP
+  SIGN --> SDK
+  DB <--> SDK
+  SHARE <--> OTHER["Another compatible device"]
 ```
 
-### Trust model
+## Core capabilities
 
-- The Relay signs every capsule (Ed25519 over the canonical JSON body).
-- A device learns the Relay's public key from `GET /v1/keys` (trust on first use over HTTPS).
-- A pack from someone else is checked against those keys. A **new** key is never accepted silently: the user sees its fingerprint and must approve it, like an SSH host key.
-- A key ID can never be re-bound to a different key.
-- Only results whose signature verified are ever exported.
-- The custody chain inside a pack (origin → exporter → importer) is informational and unsigned. The capsule signature is what is cryptographic.
-
-### Tech stack
-
-| Layer | Technology |
+| Capability | What it enables |
 |---|---|
-| **Search provider** | [SerpApi](https://serpapi.com): Search API (`async=true`) and Search Archive API, via the official `serpapi-java` library |
-| **Relay (backend)** | Java 21, Spring Boot 4.1 (web, JDBC, Actuator), Maven, Jackson and Gson, `java-json-canonicalization` (RFC 8785 canonical JSON), Ed25519 signing |
-| **Database** | PostgreSQL 17 (cache, search jobs, signing keys, credit ledger) |
-| **Web app** | TypeScript, React 19, Vite 8, installable PWA (service worker) |
-| **Edge SDK** | TypeScript, IndexedDB for on-device storage, MiniSearch for offline full-text search, WebCrypto Ed25519 for signature verification, gzip via `CompressionStream`, delta capsules, WebRTC data channels for peer transfer |
-| **On-device AI** | transformers.js (`@huggingface/transformers`) with the all-MiniLM-L6-v2 quantised model on ONNX Runtime Web (WebAssembly), loaded on demand |
-| **Shared protocol** | TypeScript package: capsule schema (Ajv), canonical JSON (`canonicalize`), SHA-256 (`@noble/hashes`), golden test vectors shared with the Relay |
-| **Sharing** | `.setupack` files via the Web Share API, animated QR codes (`qrcode` to display, `jsqr` to scan), WebRTC with QR signalling, Background Sync API and a service worker, Network Information API for opportunistic sync |
-| **Testing** | Vitest (protocol, SDK, demo) and JUnit via Spring Boot Test (Relay) |
-| **Deployment** | Docker and Docker Compose, nginx serving the app and proxying `/v1/*` to the Relay |
+| SerpApi-powered live acquisition | Retrieve search results through the Relay when online and permitted by policy |
+| Local capsule store and offline search | Reuse previously acquired results without a live request |
+| Durable outbox and sync engine | Queue supported requests and retry after connectivity returns |
+| Signed Capsule Packs (`.setupack`) | Export and import capsule bundles with integrity verification |
+| QR transfer | Move small bundles between devices using QR frames |
+| Nearby peer transfer | Exchange data between compatible devices on a suitable local network |
+| Delta sharing | Send differences when the receiver has the exact required base version |
+| Freshness metadata and policies | Make the age and expected volatility of stored information visible |
+| Query normalization and cache | Reuse results for requests treated as equivalent by the implementation |
+| On-device semantic search | Find related stored content after the model has been downloaded |
+| Network simulation and impact views | Explore constrained-connectivity scenarios and local reuse metrics |
+| Installable PWA | Reopen the application after installation or a prior visit, subject to browser support |
+| Credit governor | Configure monthly and per-install acquisition limits and a global kill switch |
 
-## 5. Repository layout
+## Trust and security model
 
-```
-apps/relay          Spring Boot Relay: governor, cache, SerpApi client, signer, /v1 API
-apps/demo           React + Vite PWA (search, share & receive, impact, network lab)
+SetuSync is designed so that content can travel over channels that are not themselves trusted.
+
+- Capsules are signed by the Relay using Ed25519 over the canonical capsule content.
+- Clients verify signatures against configured or pinned public keys before treating imported content as verified.
+- Unknown signing keys should not be silently trusted; review the key fingerprint and trust flow before accepting a new key.
+- A signing key ID must not be rebound to a different public key.
+- Only verified capsules should be exported as trusted content.
+- The custody trail is informational; it is not a cryptographically authenticated chain unless explicitly signed by the implementation.
+- A valid signature establishes integrity and origin relative to a trusted key. It does **not** prove that a search result is true, unbiased, current, or safe.
+
+**Protect secrets:** never commit `.env`, SerpApi API keys, signing private keys, database passwords, production credentials, or backups containing them. Use environment variables or a secrets manager. `.env.example` files should contain placeholders only. Rotate any credential that may have been exposed.
+
+## Technology
+
+- **Relay:** Java 21, Spring Boot, Maven, PostgreSQL
+- **Web app:** TypeScript, React, Vite, service worker / PWA
+- **Edge SDK:** TypeScript, IndexedDB, local text search, synchronization, pack and peer-transfer modules
+- **Protocol:** shared capsule schema, canonical JSON, SHA-256 hashing, Ed25519 signing and verification
+- **Semantic search:** Transformers.js and ONNX Runtime Web, loaded on demand
+- **Testing:** Vitest and Spring Boot/JUnit tests
+- **Deployment:** Docker Compose, nginx, PostgreSQL
+
+The detailed implementation is in `apps/relay`, `apps/demo`, `packages/edge-sdk`, and `packages/protocol`.
+
+## Repository layout
+
+```text
+apps/relay          Spring Boot Relay and SerpApi integration
+apps/demo           React + Vite PWA
 apps/benchmark      Benchmark harness
-packages/protocol   Shared capsule format, canonical JSON, hashing, test vectors
-packages/edge-sdk   Offline store, search, outbox, sync engine, keyring, packs, QR transfer
-tools/netsim-bench  Network simulation used by the Network lab
-infra/              Deployment helpers
-docs/               Community hub guide
-scripts/            generate-signing-key.mjs, diagnose-signature.mjs
+packages/protocol   Capsule format, canonicalization, hashing and test vectors
+packages/edge-sdk   Local storage, search, sync, verification and sharing
+tools/netsim-bench  Network-simulation benchmark
+docs/               Community hub deployment guide
+scripts/            Signing-key generation and diagnostic utilities
 ```
 
-## 6. Quick start (Docker)
+## Run locally with Docker Compose
 
-Prerequisites: Docker, Node 20+ and a free
-[SerpApi key](https://serpapi.com/manage-api-key) (250 searches a month).
+### Prerequisites
+
+- Docker with Docker Compose
+- Node.js 20 or newer for local development and tests
+- Java 21 for running/testing the Relay outside Docker
+- A SerpApi account and API key for live search
+
+### Start the application
+
+From the repository root:
 
 ```bash
-git clone <your-repo-url> && cd SetuSync
 cp .env.example .env
-node scripts/generate-signing-key.mjs      # paste the 3 printed lines into .env
-# also set SERPAPI_KEY=... in .env
-docker compose up -d --build
 ```
 
-Open <http://localhost:8089> (the port is `WEB_PORT` in `.env`).
+On Windows PowerShell:
 
-The web container serves the app and proxies `/v1/*` to the Relay, so there is
-one public URL and no CORS setup. Check the Relay started correctly:
+```powershell
+Copy-Item .env.example .env
+```
+
+Edit `.env` locally. Set `SERPAPI_KEY` to your own key and configure the signing key variables described below. Generate a new signing key for your environment:
 
 ```bash
-docker compose logs relay | grep "signing key"   # expect: Registered signing key ... as ACTIVE
+node scripts/generate-signing-key.mjs
 ```
+
+Copy the generated values into your local `.env` as directed by the script. **Never paste private-key output into an issue, chat, screenshot, public log, or committed file.**
+
+Build and start the services:
+
+```bash
+docker compose up -d --build
+docker compose ps
+docker compose logs --tail=100 relay
+```
+
+Open `http://localhost:8089` unless you changed `WEB_PORT` in `.env`.
+
+Before exposing the service publicly, configure HTTPS, allowed origins, durable production storage, database credentials, monitoring, and secret management. Local Docker defaults are for development and should not automatically be treated as production security settings.
 
 ### Local development
 
+Start PostgreSQL:
+
 ```bash
 docker compose up -d postgres
-cd apps/relay && ./mvnw spring-boot:run          # needs SERPAPI_KEY and SETUSYNC_SIGNING_* in the environment
-# second terminal, from the repo root
-npm install && npm run dev -w @setusync/demo     # http://localhost:5173
 ```
 
-Requires Java 21 for the Relay.
-
-## 7. Configuration
-
-| Variable | Default | Meaning |
-|---|---|---|
-| `SERPAPI_KEY` | required | Your SerpApi API key |
-| `SETUSYNC_SIGNING_PRIVATE_KEY_PKCS8_B64` | required | Ed25519 private key (**secret**) |
-| `SETUSYNC_SIGNING_PUBLIC_KEY_SPKI_B64`, `SETUSYNC_SIGNING_KID` | required | Registered as the ACTIVE key at startup. Change the KID whenever you generate a new key pair |
-| `SETUSYNC_GOVERNOR_MONTHLY_CREDIT_BUDGET` | 240 | Live searches per month. `0` refuses every search |
-| `SETUSYNC_GOVERNOR_PER_INSTALL_CREDIT_QUOTA` | 40 | Live searches per device |
-| `SETUSYNC_GOVERNOR_GLOBAL_KILL_SWITCH` | false | Stop live searches; cached results are still served |
-| `SETUSYNC_CORS_ALLOWED_ORIGINS` | localhost | Only needed if the Relay is on another domain |
-| `RELAY_URL` (web container) | empty = same origin | Full Relay URL if you do not use the built-in proxy |
-| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | local Postgres | Database |
-
-**Never commit `.env`.** It is already in `.gitignore`.
-
-## 8. Demo walkthrough (about 4 minutes)
-
-1. **Online.** Search "best cafe in Tokyo" and press *Search live*. Results arrive with a **Verified** badge.
-2. **Rephrase.** Search "tokyo best cafes?". SetuSync recognises the same search and spends no credit.
-3. **No signal.** Tick *Simulate no connectivity* and search the saved results. Search something new and choose *Save for later*; it queues. Untick, and it sends itself.
-4. **Share.** *Share & receive* → share as a file (WhatsApp, Bluetooth, USB) or *Show as QR*. On a second browser or phone, *Import file* or *Scan QR*, check the fingerprint, and the results appear as verified.
-5. **Attack.** Edit one byte of the `.setupack` and import it. It is rejected.
-6. **Lab.** *Network lab* → pick a lossy network → *Compare*. A typical app fails; SetuSync still delivers.
-7. **Impact.** Show credits avoided and data that never touched the Relay.
-
-### Trying the newer features
-
-- **Nearby transfer:** on two devices on the same Wi-Fi, open *Share & receive*. On one, tap *Start a transfer* and show the code; on the other tap *Join a transfer* and scan it, then show the reply code back to the first. Searches flow both ways.
-- **Delta update:** fetch a search, share it to a second device, let the search change and refresh it, then tap *Share only changes*. The file is much smaller and the other device ends up with the exact signed result.
-- **Background Sync (Chromium browsers):** go offline, search something new and choose *Save for later*, close the tab, reconnect. The result is waiting when you reopen the app.
-- **Smart search:** tap *Turn on smart search* once while online, then search by meaning (for example "cheap places to eat") even offline.
-
-## 9. Tests
+In one terminal, configure the Relay environment variables and run:
 
 ```bash
-npm install && npm test          # protocol, edge-sdk and demo (vitest)
-cd apps/relay && ./mvnw test     # Relay
+cd apps/relay
+./mvnw spring-boot:run
 ```
 
-If a result ever shows "Signature failed", this helper reports which check fails (content hash, capsule ID or signature):
+On Windows, use `mvnw.cmd` if needed. In a second terminal, from the repository root:
+
+```bash
+npm install
+npm run dev -w @setusync/demo
+```
+
+Use the local URL printed by Vite (normally `http://localhost:5173`).
+
+## Configuration
+
+Check `docker-compose.yml`, `apps/relay/src/main/resources/application.yml`, `application-prod.yml`, and the `.env.example` files for the exact configuration supported by this checkout.
+
+Common settings include:
+
+| Variable | Purpose |
+|---|---|
+| `SERPAPI_KEY` | SerpApi API key; keep it secret |
+| `SETUSYNC_SIGNING_PRIVATE_KEY_PKCS8_B64` | Ed25519 private key in the format expected by the Relay; secret |
+| `SETUSYNC_SIGNING_PUBLIC_KEY_SPKI_B64` | Matching public key |
+| `SETUSYNC_SIGNING_KID` | Identifier for the active signing key |
+| `SETUSYNC_GOVERNOR_MONTHLY_CREDIT_BUDGET` | Maximum live-search budget configured for the period |
+| `SETUSYNC_GOVERNOR_PER_INSTALL_CREDIT_QUOTA` | Per-install acquisition limit |
+| `SETUSYNC_GOVERNOR_GLOBAL_KILL_SWITCH` | Disables live acquisition when enabled |
+| `SETUSYNC_CORS_ALLOWED_ORIGINS` | Permitted browser origins when cross-origin access is used |
+| `RELAY_URL` | Optional full Relay URL when not using the same-origin proxy |
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL connection settings; credentials must remain private |
+
+Defaults and required/optional status can differ by profile. Treat the checked-in example files and active configuration as authoritative.
+
+## Tests and practical verification
+
+Run the JavaScript/TypeScript test suite from the repository root:
+
+```bash
+npm ci
+npm test
+```
+
+Run Relay tests:
+
+```bash
+cd apps/relay
+./mvnw test
+```
+
+On Windows, use `mvnw.cmd test` if required by your shell.
+
+For a live end-to-end check with a valid API key:
+
+1. Make a live search through the Relay.
+2. Confirm the result is returned and the capsule signature verifies.
+3. Repeat an equivalent request and verify the configured cache behavior.
+4. Load a previously stored result with the network disabled.
+5. Queue a supported request offline, reconnect, and confirm its completion.
+6. Export and import a capsule pack; confirm tampered content is rejected.
+7. Test QR and peer transfer on the target browsers/devices.
+8. Start the application from the documented setup and confirm no secrets appear in repository files or logs.
+
+A passing unit test suite does not by itself prove that every live integration and browser-specific transfer path works in every environment. Demonstrate the flows that you have actually tested.
+
+A signature diagnostic helper is available for local or authorized deployments:
 
 ```bash
 node scripts/diagnose-signature.mjs http://localhost:8089 "your query"
 ```
 
-## 10. Deployment notes
+## Design considerations
 
-- Browsers need **HTTPS or `localhost`** for the camera (QR scan), the share sheet and PWA install. Put any HTTPS reverse proxy in front for a public demo.
-- Free hosting tiers that sleep when idle will make the first request slow; warm the Relay before presenting.
-- The Relay needs PostgreSQL and outbound access to `serpapi.com`.
+SetuSync is built for intermittent connectivity, not as a replacement for a live search. New live results still require connectivity and an available SerpApi acquisition path. Stored results may become stale, so freshness metadata matters. QR transfer is best suited to small bundles; larger packs can be shared as files. Browser support, secure-context requirements, local-network policies, and background synchronization vary by platform. Semantic search requires an initial model download and sufficient device resources. Peer transfer is opportunistic device-to-device exchange, not a general-purpose mesh network.
 
-## 11. Troubleshooting
+These are implementation boundaries to account for when deploying the system—not a reduction of the central idea: make previously acquired search knowledge reusable and transferable.
 
-| Symptom | Cause / fix |
-|---|---|
-| "…budget is used up / not configured" | Governor limits. Raise `SETUSYNC_GOVERNOR_*` (never `0`) |
-| "relay has no SerpApi key configured" | `SERPAPI_KEY` is missing in the Relay container |
-| Search accepted but never completes | No ACTIVE signing key. Check the Relay log and set the 3 signing variables |
-| "Not checked yet" on results | The device has no Relay key yet. Open the app once while online |
-| "Signature failed" | The capsule did not verify. It is kept but never shared. Run the diagnose script above |
-| Scan QR / Share / install unavailable | Needs HTTPS or `localhost` |
-| Smart search says it could not start | The model downloads once from Hugging Face. Connect, then try again. It works offline afterwards |
-| Nearby transfer will not connect | Both phones must be on the same Wi-Fi or hotspot. Some networks block device-to-device traffic (guest Wi-Fi, client isolation); use a phone hotspot instead |
-| `Could not reach the relay…` | Relay down, wrong `RELAY_URL`, or CORS. The request stays queued and retries |
-| `UnsupportedClassVersionError` | Needs Java 21 |
+## Licensing and attribution
 
-## 12. Known limits
+This repository uses third-party packages and browser/runtime components. Their licenses and terms apply; review dependency notices before redistribution or production use.
 
-- QR transfer is meant for a few searches (about 13 KB). For larger sets, share the file.
-- Ed25519 in WebCrypto needs a recent browser (Chrome 137+, Firefox 129+, Safari 17+). Older browsers show results as "not checked" and cannot export.
-- Peer sharing is **opportunistic sharing between people**, not a mesh network.
-- iOS has limited Web Bluetooth and share support. The file route (WhatsApp, AirDrop) works everywhere.
-- **WebRTC** uses no STUN/TURN servers, so it works on the same local network only. Networks with client isolation block it.
-- **Background Sync** is supported by Chromium browsers (Chrome, Edge) only. Elsewhere, queued searches are sent when the app is open. The service worker never verifies anything: results are checked when the app opens.
-- **Delta updates** work only when the receiver already holds the exact earlier version. Otherwise the app asks for a full pack. Deltas between the Relay and the device are not implemented; deltas are used for sharing between devices.
-- **Smart search** downloads about 25 MB from Hugging Face the first time, then runs offline. Its WebAssembly runtime is served by the app itself. Quality is that of a small model.
-- Predictive prefetch of likely searches is not implemented.
+Only state a project license that is actually present in the repository and approved by the rightsholders. Do not claim an MIT or other license unless the corresponding license file is included.
 
-## 13. Hackathon notes
+## SerpApi India Hackathon 2026 submission checklist
 
-**Judging criteria**
+Use this checklist alongside the official rules and submission dashboard.
 
-| Criterion | Where to look |
-|---|---|
-| Idea strength | Sections 1 and 2: resilient, shareable, tamper-proof search for low-connectivity users |
-| Originality | Signed capsules that travel over WhatsApp / QR with no server; key pinning with fingerprints |
-| Technical complexity | Ed25519 canonical-JSON signing across a Java Relay and a TypeScript SDK, durable outbox, packs, QR streaming, credit governor |
-| Usefulness | Fewer SerpApi credits spent, results available offline, one connected person can serve many |
-| Meaningful SerpApi usage | Section 3: every result comes from SerpApi (live search + Search Archive) |
+- [ ] Public repository opens without authentication and includes setup/usage instructions.
+- [ ] The README explains how SerpApi is used and why it is central to the product.
+- [ ] Feature claims match the code and the core flows have been tested.
+- [ ] A publicly accessible screen recording under three minutes shows the project running locally and its core functionality. Submit the video link through the hackathon dashboard; it does not need to be embedded in this README.
+- [ ] The form includes the project description, one selected track, lead participant details, and all team members (maximum five people total).
+- [ ] The form accurately answers whether the project existed before the hackathon and how the team learned about the event.
+- [ ] AI development/content-generation tools are disclosed in the form when used, with a brief description of their role.
+- [ ] All team members meet the official eligibility requirements.
+- [ ] Third-party code, content, assets, APIs, and datasets are used under applicable licenses and terms.
+- [ ] No API keys, private keys, personal information, or confidential material are exposed in the repository, demo, or logs.
+- [ ] The official rules and Terms & Conditions have been accepted and the project is fully submitted—not merely saved as a draft—before the deadline.
 
-**Disclosures**
-
-- **Existed before the hackathon:** `<!-- TODO: yes/no, and what was built during the hackathon -->`
-- **AI tools used:** Claude (Anthropic) assisted with design, coding, debugging and documentation. All code was reviewed and tested by the team, who remain responsible for it.
-- **Secrets:** no API keys or private keys are committed. `.env` is git-ignored.
-
-## 14. License
-
-MIT, see [LICENSE](LICENSE).
+Official sources:
+- [SerpApi India Hackathon 2026 — Rules](https://serpapi.github.io/serpapi-india-hackathon-2026/rules.html)
+- [SerpApi India Hackathon 2026 — Terms & Conditions](https://serpapi.github.io/serpapi-india-hackathon-2026/terms.html)
+- [SerpApi](https://serpapi.com)
