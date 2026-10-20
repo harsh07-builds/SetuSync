@@ -288,25 +288,3 @@ These are implementation boundaries to account for when deploying the system—n
 
 This repository uses third-party packages and browser/runtime components. Their licenses and terms apply; review dependency notices before redistribution or production use.
 
-Only state a project license that is actually present in the repository and approved by the rightsholders. Do not claim an MIT or other license unless the corresponding license file is included.
-
-## SerpApi India Hackathon 2026 submission checklist
-
-Use this checklist alongside the official rules and submission dashboard.
-
-- [ ] Public repository opens without authentication and includes setup/usage instructions.
-- [ ] The README explains how SerpApi is used and why it is central to the product.
-- [ ] Feature claims match the code and the core flows have been tested.
-- [ ] A publicly accessible screen recording under three minutes shows the project running locally and its core functionality. Submit the video link through the hackathon dashboard; it does not need to be embedded in this README.
-- [ ] The form includes the project description, one selected track, lead participant details, and all team members (maximum five people total).
-- [ ] The form accurately answers whether the project existed before the hackathon and how the team learned about the event.
-- [ ] AI development/content-generation tools are disclosed in the form when used, with a brief description of their role.
-- [ ] All team members meet the official eligibility requirements.
-- [ ] Third-party code, content, assets, APIs, and datasets are used under applicable licenses and terms.
-- [ ] No API keys, private keys, personal information, or confidential material are exposed in the repository, demo, or logs.
-- [ ] The official rules and Terms & Conditions have been accepted and the project is fully submitted—not merely saved as a draft—before the deadline.
-
-Official sources:
-- [SerpApi India Hackathon 2026 — Rules](https://serpapi.github.io/serpapi-india-hackathon-2026/rules.html)
-- [SerpApi India Hackathon 2026 — Terms & Conditions](https://serpapi.github.io/serpapi-india-hackathon-2026/terms.html)
-- [SerpApi](https://serpapi.com)
