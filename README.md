@@ -6,16 +6,12 @@ SetuSync is an offline-first knowledge layer built around SerpApi. It takes the 
 
 The idea is bigger than adding a search box to an app. **SetuSync explores a new way for SerpApi-powered information to reach people and places where a reliable, continuous internet connection cannot be assumed.** SerpApi remains the online discovery engine; SetuSync adds a portable, verifiable reuse-and-sharing layer around the information it helps retrieve.
 
-**Hackathon track:** Knowledge & Public Interest
-
 ---
 
 ## The idea: extend what search can do
 
 A live search is valuable, but its usefulness can end when the connection drops, the same question is asked again, or someone nearby needs the same information on a different device.
-
 SetuSync changes the lifecycle of a search result:
-
 1. **Discover with SerpApi.** The Relay requests live search results through SerpApi when acquisition is allowed and needed.
 2. **Package the result.** SetuSync compiles the result into a structured knowledge capsule and signs it.
 3. **Keep it close.** The device stores capsules locally so previously acquired information can be searched without a live request.
